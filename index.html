@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Salud Visual - Visión Kantutani</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        html, body { height: 100%; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+        .survey-header { background-color: #ffffff; border-bottom: 1px solid #dee2e6; }
+        .card-header { background-color: rgba(0, 123, 255, 0.1); font-weight: 600; }
+        #results-container .card-header { font-size: 1.25rem; }
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .form-check-input:checked { background-color: #007bff; border-color: #007bff; }
+
+        /* Welcome Screen Styles */
+        #welcome-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; transition: opacity 0.5s ease-out; }
+        #welcome-logo { max-width: 200px; margin-bottom: 2rem; }
+        
+        /* Animation Styles */
+        .fade-out { opacity: 0; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .pulsate-animation {
+            animation: pulse-animation 2.5s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.3); }
+            70% { transform: scale(1.01); box-shadow: 0 0 10px 15px rgba(40, 167, 69, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen">
+        <img src="Logo Vision Kantutani.jpg" alt="Logo Visión Kantutani" id="welcome-logo">
+        <h1 class="display-4 fw-bold">BIENVENIDO</h1>
+        <p class="lead mb-4">Complete esta breve encuesta para evaluar su salud visual.</p>
+        <button id="startSurveyBtn" class="btn btn-primary btn-lg">Iniciar Encuesta</button>
+    </div>
+
+    <!-- Survey Container -->
+    <div id="survey-container" style="display: none;">
+        <div class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="text-center p-4 mb-4 survey-header rounded-3">
+                        <h1 class="display-6">Encuesta de Salud Visual</h1>
+                        <p class="lead">En Visión Kantutani, creemos que ver bien es vivir mejor.</p>
+                    </div>
+
+                    <form id="visualSurveyForm">
+                        <!-- Form sections -->
+                        <div class="card mb-4"><div class="card-header">Sección 1: Datos Personales</div><div class="card-body"><div class="mb-3"><label for="nombre_apellido" class="form-label">Nombre y Apellido:</label><input type="text" class="form-control" id="nombre_apellido" name="nombre_apellido" required></div><div class="row"><div class="col-md-6 mb-3"><label for="edad" class="form-label">Edad:</label><input type="number" class="form-control" id="edad" name="edad"></div><div class="col-md-6 mb-3"><label for="ocupacion" class="form-label">Ocupación:</label><input type="text" class="form-control" id="ocupacion" name="ocupacion"></div></div><div class="mb-3"><label for="numero_celular" class="form-label">Número de Celular:</label><input type="tel" class="form-control" id="numero_celular" name="numero_celular" required></div><div class="mb-3"><label for="correo_electronico" class="form-label">Correo Electrónico:</label><input type="email" class="form-control" id="correo_electronico" name="correo_electronico"></div></div></div>
+                        <div class="card mb-4"><div class="card-header">Sección 2: Hábitos Visuales</div><div class="card-body"><p>1. ¿Con qué frecuencia realiza un control visual con un especialista?</p><div class="form-check"><input class="form-check-input" type="radio" name="frecuencia_control" id="freq1" value="3" required><label class="form-check-label" for="freq1">Nunca</label></div><div class="form-check"><input class="form-check-input" type="radio" name="frecuencia_control" id="freq2" value="2"><label class="form-check-label" for="freq2">Cada 2–3 años</label></div><div class="form-check"><input class="form-check-input" type="radio" name="frecuencia_control" id="freq3" value="0"><label class="form-check-label" for="freq3">Una vez al año</label></div><div class="form-check mb-3"><input class="form-check-input" type="radio" name="frecuencia_control" id="freq4" value="2"><label class="form-check-label" for="freq4">Cuando tengo molestias</label></div><p>2. ¿Cuánto tiempo pasa en promedio frente a pantallas?</p><div class="form-check"><input class="form-check-input" type="radio" name="tiempo_pantallas" id="screen1" value="0" required><label class="form-check-label" for="screen1">Menos de 2 horas</label></div><div class="form-check"><input class="form-check-input" type="radio" name="tiempo_pantallas" id="screen2" value="1"><label class="form-check-label" for="screen2">2–4 horas</label></div><div class="form-check"><input class="form-check-input" type="radio" name="tiempo_pantallas" id="screen3" value="2"><label class="form-check-label" for="screen3">5–8 horas</label></div><div class="form-check mb-3"><input class="form-check-input" type="radio" name="tiempo_pantallas" id="screen4" value="3"><label class="form-check-label" for="screen4">Más de 8 horas</label></div><p>3. ¿Utiliza lentes para leer, trabajar o conducir?</p><div class="form-check"><input class="form-check-input" type="radio" name="usa_lentes" id="lentes1" value="2" required><label class="form-check-label" for="lentes1">Sí</label></div><div class="form-check"><input class="form-check-input" type="radio" name="usa_lentes" id="lentes2" value="0"><label class="form-check-label" for="lentes2">No</label></div><div class="form-check"><input class="form-check-input" type="radio" name="usa_lentes" id="lentes3" value="1"><label class="form-check-label" for="lentes3">A veces</label></div></div></div>
+                        <div class="card mb-4"><div class="card-header">Sección 3: Síntomas y Antecedentes</div><div class="card-body"><p>4. ¿Ha experimentado alguno de estos síntomas en los últimos 6 meses?</p><div class="form-check"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma1" value="2" data-text="Dolor de cabeza frecuente"><label class="form-check-label" for="sintoma1">Dolor de cabeza frecuente</label></div><div class="form-check"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma2" value="2" data-text="Vista cansada"><label class="form-check-label" for="sintoma2">Vista cansada</label></div><div class="form-check"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma3" value="3" data-text="Visión borrosa de lejos"><label class="form-check-label" for="sintoma3">Visión borrosa de lejos</label></div><div class="form-check"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma4" value="3" data-text="Visión borrosa de cerca"><label class="form-check-label" for="sintoma4">Visión borrosa de cerca</label></div><div class="form-check"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma5" value="2" data-text="Lagrimeo o resequedad"><label class="form-check-label" for="sintoma5">Lagrimeo o resequedad</label></div><div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="sintomas" id="sintoma6" value="0" data-text="Ninguno"><label class="form-check-label" for="sintoma6">Ninguno</label></div><p>5. ¿Tiene antecedentes familiares de enfermedades oculares?</p><div class="form-check"><input class="form-check-input" type="radio" name="antecedentes" id="antec1" value="2" required><label class="form-check-label" for="antec1">Sí</label></div><div class="form-check"><input class="form-check-input" type="radio" name="antecedentes" id="antec2" value="0"><label class="form-check-label" for="antec2">No</label></div><div class="form-check"><input class="form-check-input" type="radio" name="antecedentes" id="antec3" value="1"><label class="form-check-label" for="antec3">No lo sé</label></div></div></div>
+                        <div class="card mb-4"><div class="card-header">Sección 4: Conocimiento y Contacto</div><div class="card-body"><p>6. ¿Sabía que un examen oftalmológico anual puede detectar enfermedades a tiempo?</p><div class="form-check"><input class="form-check-input" type="radio" name="conocimiento_examen" id="conoc1" value="0" required><label class="form-check-label" for="conoc1">Sí</label></div><div class="form-check mb-3"><input class="form-check-input" type="radio" name="conocimiento_examen" id="conoc2" value="1"><label class="form-check-label" for="conoc2">No</label></div><p>7. ¿Le gustaría recibir consejos prácticos de cuidado visual y prevención?</p><div class="form-check"><input class="form-check-input" type="radio" name="recibir_consejos" id="consejo1" value="Sí, por WhatsApp" required><label class="form-check-label" for="consejo1">Sí, por WhatsApp</label></div><div class="form-check"><input class="form-check-input" type="radio" name="recibir_consejos" id="consejo2" value="Sí, por correo electrónico"><label class="form-check-label" for="consejo2">Sí, por correo electrónico</label></div><div class="form-check"><input class="form-check-input" type="radio" name="recibir_consejos" id="consejo3" value="No, gracias"><label class="form-check-label" for="consejo3">No, gracias</label></div></div></div>
+                        <div class="d-grid"><button type="submit" class="btn btn-primary btn-lg">Calcular Mi Resultado</button></div>
+                    </form>
+
+                    <div id="results-container" class="text-center" style="display: none;">
+                        <div class="card mt-4">
+                            <div id="result-title" class="card-header"></div>
+                            <div class="card-body">
+                                <div id="initial-result-content">
+                                    <p id="result-text" class="fs-5"></p>
+                                    <div id="agendar-cita-section" class="mt-4 p-3 bg-success-subtle border border-success rounded pulsate-animation">
+                                        <i class="bi bi-patch-check-fill text-success" style="font-size: 2.5rem;"></i>
+                                        <p class="fw-bold text-success mt-2">Con esta encuesta tiene derecho a una evaluación visual preventiva con descuento especial.</p>
+                                        <p class="mt-3">¿Le gustaría que uno de nuestros especialistas se contacte con usted para agendar una cita?</p>
+                                        <button id="agendarSi" class="btn btn-success mx-2">Sí, contactarme</button>
+                                        <button id="agendarNo" class="btn btn-secondary mx-2">No, gracias</button>
+                                    </div>
+                                </div>
+                                <div id="final-step-content" style="display: none;">
+                                    <p id="final-message" class="fs-5 fw-bold text-success mt-3"></p>
+                                    <button id="newSurveyBtn" class="btn btn-primary btn-lg mt-4">Realizar una nueva encuesta</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // --- CONFIGURACIÓN DE SUPABASE ---
+        const SUPABASE_URL = 'https://jnlaypglrsaxoxszancc.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpubGF5cGdscnNheG94c3phbmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkwMzM4MDUsImV4cCI6MjA3NDYwOTgwNX0.fsf30iu0EIi2wPctWH9OTAVzGh4rqn1bJObk1ieAyYs';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ------------------------------------
+
+        // Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const surveyContainer = document.getElementById('survey-container');
+        const startSurveyBtn = document.getElementById('startSurveyBtn');
+        const form = document.getElementById('visualSurveyForm');
+        const resultsContainer = document.getElementById('results-container');
+        let surveyData = {};
+
+        function resetSurvey() {
+            form.reset();
+            surveyData = {};
+            
+            const resultTitleEl = document.getElementById('result-title');
+            resultTitleEl.innerText = '';
+            resultTitleEl.className = 'card-header';
+            
+            document.getElementById('initial-result-content').style.display = 'block';
+            document.getElementById('final-step-content').style.display = 'none';
+            resultsContainer.style.display = 'none';
+
+            surveyContainer.classList.add('fade-out');
+            setTimeout(() => {
+                surveyContainer.style.display = 'none';
+                welcomeScreen.style.display = 'flex';
+                welcomeScreen.classList.remove('fade-out');
+                surveyContainer.classList.remove('fade-out');
+            }, 500);
+        }
+
+        startSurveyBtn.addEventListener('click', () => {
+            welcomeScreen.classList.add('fade-out');
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                surveyContainer.style.display = 'block';
+                surveyContainer.classList.add('fade-in');
+                form.style.display = 'block';
+            }, 500);
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            let finalScore = 0;
+            const formData = new FormData(form);
+            surveyData.nombre_apellido = formData.get('nombre_apellido');
+            surveyData.edad = parseInt(formData.get('edad'));
+            surveyData.ocupacion = formData.get('ocupacion');
+            surveyData.numero_celular = formData.get('numero_celular');
+            surveyData.correo_electronico = formData.get('correo_electronico');
+            const radioQuestions = ['frecuencia_control', 'tiempo_pantallas', 'usa_lentes', 'antecedentes', 'conocimiento_examen'];
+            radioQuestions.forEach(name => {
+                finalScore += parseInt(formData.get(name) || 0);
+                const radioChecked = document.querySelector(`input[name="${name}"]:checked`);
+                if(radioChecked) surveyData[name.replace('usa_', 'uso_')] = radioChecked.nextElementSibling.textContent;
+            });
+            const sintomas = document.querySelectorAll('input[name="sintomas"]:checked');
+            let sintomasTexts = [];
+            sintomas.forEach(sintoma => {
+                finalScore += parseInt(sintoma.value);
+                sintomasTexts.push(sintoma.dataset.text);
+            });
+            surveyData.sintomas_experimentados = sintomasTexts.join(', ');
+            surveyData.desea_recibir_consejos = formData.get('recibir_consejos');
+            surveyData.puntaje_final = finalScore;
+            let resultTitle, resultText, resultClass;
+            if (finalScore <= 4) {
+                resultTitle = "Resultado: Riesgo Bajo";
+                resultText = "No requiere consulta inmediata, mantener hábitos y controles rutinarios.";
+                resultClass = 'bg-success text-white';
+            } else if (finalScore <= 10) {
+                resultTitle = "Resultado: Riesgo Moderado";
+                resultText = "Recomendado consulta con optometría (examen de visión, lentes, prevención).";
+                resultClass = 'bg-warning text-dark';
+            } else {
+                resultTitle = "Resultado: Riesgo Alto";
+                resultText = "Recomendado consulta con oftalmología (descartar enfermedades oculares importantes).";
+                resultClass = 'bg-danger text-white';
+            }
+            surveyData.resultado_interpretacion = resultText;
+            const resultTitleEl = document.getElementById('result-title');
+            resultTitleEl.innerText = resultTitle;
+            resultTitleEl.className = 'card-header ' + resultClass;
+            document.getElementById('result-text').innerText = `Tu puntaje es ${finalScore}. ${resultText}`;
+            resultsContainer.style.display = 'block';
+            form.style.display = 'none';
+        });
+
+        async function handleAgendarClick(agendar) {
+            const agendarSiBtn = document.getElementById('agendarSi');
+            const agendarNoBtn = document.getElementById('agendarNo');
+            const originalSiText = agendarSiBtn.innerHTML;
+            const originalNoText = agendarNoBtn.innerHTML;
+
+            agendarSiBtn.disabled = true;
+            agendarNoBtn.disabled = true;
+            const clickedBtn = agendar ? agendarSiBtn : agendarNoBtn;
+            clickedBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...`;
+
+            surveyData.agendo_cita = agendar ? 'Si' : 'No';
+            const success = await saveToSupabase();
+
+            if (success) {
+                document.getElementById('initial-result-content').style.display = 'none';
+                const message = agendar ? "¡Gracias! Pronto nos pondremos en contacto contigo." : "¡Gracias por participar en la encuesta!";
+                document.getElementById('final-message').innerText = message;
+                document.getElementById('final-step-content').style.display = 'block';
+            } else {
+                agendarSiBtn.disabled = false;
+                agendarNoBtn.disabled = false;
+                agendarSiBtn.innerHTML = originalSiText;
+                agendarNoBtn.innerHTML = originalNoText;
+            }
+        }
+
+        document.getElementById('agendarSi').addEventListener('click', () => handleAgendarClick(true));
+        document.getElementById('agendarNo').addEventListener('click', () => handleAgendarClick(false));
+        document.getElementById('newSurveyBtn').addEventListener('click', resetSurvey);
+
+        async function saveToSupabase() {
+            const { data, error } = await supabaseClient.from('encuesta').insert([surveyData]);
+            if (error) {
+                console.error('Error detallado de Supabase:', JSON.stringify(error, null, 2));
+                alert('Hubo un error al guardar tus respuestas. Revisa la consola para más detalles.');
+                return false;
+            } else {
+                console.log('Datos guardados exitosamente:', data);
+                return true;
+            }
+        }
+    </script>
+</body>
+</html>
