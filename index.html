@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         html, body { height: 100%; }
@@ -67,11 +68,11 @@
         }
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto;
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
+            width: 90%;
+            max-width: 600px;
             border-radius: 10px;
             position: relative;
         }
@@ -113,7 +114,7 @@
         <div id="adminMenuSection" style="display:none;">
             <div class="d-grid gap-2">
                 <button id="goToEmailBtn" class="btn btn-info">Enviar Reporte por Correo</button>
-                <button id="goToDashboardBtn" class="btn btn-secondary">Ver Estadísticas</button>
+                <button id="goToDashboardBtn" class="btn btn-secondary">Ver Estadísticas con Gráficos</button>
             </div>
         </div>
 
@@ -349,15 +350,22 @@
         const goToDashboardBtn = document.getElementById('goToDashboardBtn');
         const backToMenuBtns = document.querySelectorAll('.back-to-menu');
         const statsContent = document.getElementById('stats-content');
+        let activeCharts = [];
 
 
         const ADMIN_PASSWORD = "vision_2025"; // Puedes cambiar esta contraseña
+
+        function destroyActiveCharts() {
+            activeCharts.forEach(chart => chart.destroy());
+            activeCharts = [];
+        }
 
         adminBtn.onclick = () => {
             adminModal.style.display = 'block';
             adminPasswordInput.value = '';
             recipientEmailInput.value = '';
             adminMessage.textContent = '';
+            destroyActiveCharts();
             
             // Reset to password view
             passwordSection.style.display = 'block';
@@ -368,11 +376,13 @@
 
         closeBtn.onclick = () => {
             adminModal.style.display = 'none';
+            destroyActiveCharts();
         };
 
         window.onclick = (event) => {
             if (event.target == adminModal) {
                 adminModal.style.display = 'none';
+                destroyActiveCharts();
             }
         };
 
@@ -394,6 +404,7 @@
             adminMenuSection.style.display = 'none';
             dashboardSection.style.display = 'block';
             statsContent.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>';
+            destroyActiveCharts();
 
             try {
                 const response = await fetch('/api/get-stats');
@@ -403,26 +414,66 @@
                     throw new Error(stats.message || 'Error al cargar estadísticas.');
                 }
 
-                let ageGroupHtml = '';
-                if (stats.ageGroups) {
-                    for (const [group, count] of Object.entries(stats.ageGroups)) {
-                        ageGroupHtml += `<tr><td>${group}</td><td>${count}</td></tr>`;
-                    }
-                }
-
                 statsContent.innerHTML = `
-                    <p><strong>Total de Encuestas:</strong> ${stats.totalSurveys}</p>
-                    <p><strong>Solicitudes de Cita:</strong> ${stats.appointmentsScheduled}</p>
-                    <h5 class="mt-4">Distribución por Edad:</h5>
-                    <table class="table table-bordered table-striped mt-2">
-                        <thead class="table-dark">
-                            <tr><th>Rango de Edad</th><th>Cantidad</th></tr>
-                        </thead>
-                        <tbody>
-                            ${ageGroupHtml}
-                        </tbody>
-                    </table>
+                    <p class="text-center mb-2"><strong>Total de Encuestas:</strong> ${stats.totalSurveys}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mt-3 text-center">Solicitudes de Cita</h6>
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mt-3 text-center">Distribución por Edad</h6>
+                             <canvas id="ageGroupChart"></canvas>
+                        </div>
+                    </div>
                 `;
+
+                // Render Pie Chart
+                const appointmentsCtx = document.getElementById('appointmentsChart').getContext('2d');
+                const appointmentsChart = new Chart(appointmentsCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Quieren Cita', 'No Quieren Cita'],
+                        datasets: [{
+                            label: 'Solicitudes de Cita',
+                            data: [stats.appointmentsScheduled, stats.totalSurveys - stats.appointmentsScheduled],
+                            backgroundColor: ['#28a745', '#6c757d'],
+                            hoverOffset: 4
+                        }]
+                    }
+                });
+                activeCharts.push(appointmentsChart);
+
+                // Render Bar Chart
+                const ageGroupCtx = document.getElementById('ageGroupChart').getContext('2d');
+                const ageGroupChart = new Chart(ageGroupCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(stats.ageGroups),
+                        datasets: [{
+                            label: 'Cantidad de Personas',
+                            data: Object.values(stats.ageGroups),
+                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { 
+                                    stepSize: 1,
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+                activeCharts.push(ageGroupChart);
 
             } catch (error) {
                 statsContent.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
@@ -431,6 +482,7 @@
 
         backToMenuBtns.forEach(btn => {
             btn.onclick = () => {
+                destroyActiveCharts();
                 emailSection.style.display = 'none';
                 dashboardSection.style.display = 'none';
                 adminMenuSection.style.display = 'block';
