@@ -343,6 +343,14 @@
         const recipientEmailInput = document.getElementById('recipientEmail');
         const adminMessage = document.getElementById('adminMessage');
 
+        const adminMenuSection = document.getElementById('adminMenuSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const goToEmailBtn = document.getElementById('goToEmailBtn');
+        const goToDashboardBtn = document.getElementById('goToDashboardBtn');
+        const backToMenuBtns = document.querySelectorAll('.back-to-menu');
+        const statsContent = document.getElementById('stats-content');
+
+
         const ADMIN_PASSWORD = "vision_2025"; // Puedes cambiar esta contraseña
 
         adminBtn.onclick = () => {
@@ -350,8 +358,12 @@
             adminPasswordInput.value = '';
             recipientEmailInput.value = '';
             adminMessage.textContent = '';
+            
+            // Reset to password view
             passwordSection.style.display = 'block';
+            adminMenuSection.style.display = 'none';
             emailSection.style.display = 'none';
+            dashboardSection.style.display = 'none';
         };
 
         closeBtn.onclick = () => {
@@ -367,11 +379,63 @@
         loginBtn.onclick = () => {
             if (adminPasswordInput.value === ADMIN_PASSWORD) {
                 passwordSection.style.display = 'none';
-                emailSection.style.display = 'block';
+                adminMenuSection.style.display = 'block';
             } else {
                 alert('Contraseña incorrecta.');
             }
         };
+
+        goToEmailBtn.onclick = () => {
+            adminMenuSection.style.display = 'none';
+            emailSection.style.display = 'block';
+        };
+
+        goToDashboardBtn.onclick = async () => {
+            adminMenuSection.style.display = 'none';
+            dashboardSection.style.display = 'block';
+            statsContent.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>';
+
+            try {
+                const response = await fetch('/api/get-stats');
+                const stats = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(stats.message || 'Error al cargar estadísticas.');
+                }
+
+                let ageGroupHtml = '';
+                if (stats.ageGroups) {
+                    for (const [group, count] of Object.entries(stats.ageGroups)) {
+                        ageGroupHtml += `<tr><td>${group}</td><td>${count}</td></tr>`;
+                    }
+                }
+
+                statsContent.innerHTML = `
+                    <p><strong>Total de Encuestas:</strong> ${stats.totalSurveys}</p>
+                    <p><strong>Solicitudes de Cita:</strong> ${stats.appointmentsScheduled}</p>
+                    <h5 class="mt-4">Distribución por Edad:</h5>
+                    <table class="table table-bordered table-striped mt-2">
+                        <thead class="table-dark">
+                            <tr><th>Rango de Edad</th><th>Cantidad</th></tr>
+                        </thead>
+                        <tbody>
+                            ${ageGroupHtml}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                statsContent.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+            }
+        };
+
+        backToMenuBtns.forEach(btn => {
+            btn.onclick = () => {
+                emailSection.style.display = 'none';
+                dashboardSection.style.display = 'none';
+                adminMenuSection.style.display = 'block';
+            };
+        });
 
         sendEmailBtn.onclick = async () => {
             const email = recipientEmailInput.value;
