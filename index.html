@@ -130,6 +130,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10">
                     <div class="text-center p-4 mb-4 survey-header rounded-3">
+                        <img src="Logo Vision Kantutani.jpg" alt="Logo Visión Kantutani" style="max-width: 150px; margin-bottom: 1rem;">
                         <h1 class="display-6">Encuesta de Salud Visual</h1>
                         <p class="lead">En Visión Kantutani, creemos que ver bien es vivir mejor.</p>
                     </div>
@@ -192,6 +193,7 @@
             const resultTitleEl = document.getElementById('result-title');
             resultTitleEl.innerText = '';
             resultTitleEl.className = 'card-header';
+            resultTitleEl.style.display = 'block'; // Make sure title is visible for new survey
             
             document.getElementById('initial-result-content').style.display = 'block';
             document.getElementById('final-step-content').style.display = 'none';
@@ -258,7 +260,7 @@
             const resultTitleEl = document.getElementById('result-title');
             resultTitleEl.innerText = resultTitle;
             resultTitleEl.className = 'card-header ' + resultClass;
-            document.getElementById('result-text').innerText = `Tu puntaje es ${finalScore}. ${resultText}`;
+            document.getElementById('result-text').innerText = resultText;
             resultsContainer.style.display = 'block';
             form.style.display = 'none';
         });
@@ -279,6 +281,7 @@
 
             if (success) {
                 document.getElementById('initial-result-content').style.display = 'none';
+                document.getElementById('result-title').style.display = 'none'; // Ocultar el título del resultado
                 const message = agendar ? "¡Gracias! Pronto nos pondremos en contacto contigo." : "¡Gracias por participar en la encuesta!";
                 document.getElementById('final-message').innerText = message;
                 document.getElementById('final-step-content').style.display = 'block';
