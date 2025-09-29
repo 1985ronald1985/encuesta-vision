@@ -72,7 +72,7 @@
             padding: 20px;
             border: 1px solid #888;
             width: 90%;
-            max-width: 600px;
+            max-width: 700px; /* Increased width for dashboard */
             border-radius: 10px;
             position: relative;
         }
@@ -92,6 +92,14 @@
             cursor: pointer;
         }
         #adminMenuSection .btn { margin-top: 10px; }
+        .stat-card { 
+            background-color: #e9ecef; 
+            padding: 1rem;
+            border-radius: .5rem;
+            text-align: center;
+        }
+        .stat-card h5 { font-size: 1.1rem; margin-bottom: 0.25rem; color: #495057; }
+        .stat-card p { font-size: 1.75rem; font-weight: 700; margin-bottom: 0; color: #007bff; }
     </style>
 </head>
 <body>
@@ -114,7 +122,7 @@
         <div id="adminMenuSection" style="display:none;">
             <div class="d-grid gap-2">
                 <button id="goToEmailBtn" class="btn btn-info">Enviar Reporte por Correo</button>
-                <button id="goToDashboardBtn" class="btn btn-secondary">Ver Estadísticas con Gráficos</button>
+                <button id="goToDashboardBtn" class="btn btn-secondary">Ver Dashboard de Estadísticas</button>
             </div>
         </div>
 
@@ -130,7 +138,7 @@
 
         <!-- 4. Dashboard Section -->
         <div id="dashboardSection" style="display:none;">
-            <h4>Estadísticas de Encuestas</h4>
+            <h4>Dashboard de Estadísticas</h4>
             <div id="stats-content"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>
             <button class="btn btn-light mt-3 back-to-menu">Volver al Menú</button>
         </div>
@@ -415,15 +423,35 @@
                 }
 
                 statsContent.innerHTML = `
-                    <p class="text-center mb-2"><strong>Total de Encuestas:</strong> ${stats.totalSurveys}</p>
-                    <div class="row">
+                    <div class="row mb-4">
                         <div class="col-md-6">
+                            <div class="stat-card">
+                                <h5>Total de Encuestas</h5>
+                                <p>${stats.totalSurveys}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <h5>Solicitudes de Cita</h5>
+                                <p>${stats.appointmentsScheduled}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5">
                             <h6 class="mt-3 text-center">Solicitudes de Cita</h6>
                             <canvas id="appointmentsChart"></canvas>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-7">
                             <h6 class="mt-3 text-center">Distribución por Edad</h6>
-                             <canvas id="ageGroupChart"></canvas>
+                            <table class="table table-sm table-bordered table-striped mt-2">
+                                <thead class="table-dark">
+                                    <tr><th>Rango de Edad</th><th>Cantidad</th></tr>
+                                </thead>
+                                <tbody>
+                                    ${Object.entries(stats.ageGroups).map(([group, count]) => `<tr><td>${group}</td><td>${count}</td></tr>`).join('')}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 `;
@@ -440,40 +468,17 @@
                             backgroundColor: ['#28a745', '#6c757d'],
                             hoverOffset: 4
                         }]
-                    }
-                });
-                activeCharts.push(appointmentsChart);
-
-                // Render Bar Chart
-                const ageGroupCtx = document.getElementById('ageGroupChart').getContext('2d');
-                const ageGroupChart = new Chart(ageGroupCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(stats.ageGroups),
-                        datasets: [{
-                            label: 'Cantidad de Personas',
-                            data: Object.values(stats.ageGroups),
-                            backgroundColor: 'rgba(0, 123, 255, 0.7)',
-                            borderColor: 'rgba(0, 123, 255, 1)',
-                            borderWidth: 1
-                        }]
                     },
                     options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { 
-                                    stepSize: 1,
-                                    precision: 0
-                                }
-                            }
-                        },
+                        responsive: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                position: 'top',
+                            }
                         }
                     }
                 });
-                activeCharts.push(ageGroupChart);
+                activeCharts.push(appointmentsChart);
 
             } catch (error) {
                 statsContent.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
