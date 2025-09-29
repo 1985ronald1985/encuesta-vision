@@ -1,0 +1,26 @@
+{
+  "name": "gemini",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1985ronald1985/encuesta-vision.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/1985ronald1985/encuesta-vision/issues"
+  },
+  "homepage": "https://github.com/1985ronald1985/encuesta-vision#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.58.0",
+    "papaparse": "^5.5.3",
+    "resend": "^6.1.0"
+  }
+}

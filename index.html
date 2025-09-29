@@ -35,9 +35,86 @@
             70% { transform: scale(1.01); box-shadow: 0 0 10px 15px rgba(40, 167, 69, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
         }
+
+        /* Admin Button */
+        .admin-button {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            background-color: #5a67d8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .admin-button:hover {
+            background-color: #434190;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <button id="adminBtn" class="admin-button">Admin</button>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Panel de Administrador</h2>
+        <div id="passwordSection">
+          <label for="adminPassword">Contraseña:</label>
+          <input type="password" id="adminPassword" name="adminPassword" class="form-control">
+          <button id="loginBtn" class="btn btn-primary mt-3">Ingresar</button>
+        </div>
+        <div id="emailSection" style="display:none;">
+          <p>Ingresa el correo para enviar los datos de la encuesta:</p>
+          <label for="recipientEmail">Correo electrónico:</label>
+          <input type="email" id="recipientEmail" name="recipientEmail" class="form-control">
+          <button id="sendEmailBtn" class="btn btn-success mt-3">Enviar Datos por Correo</button>
+          <p id="adminMessage" class="mt-3"></p>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Welcome Screen -->
     <div id="welcome-screen">
@@ -228,6 +305,88 @@
                 return true;
             }
         }
+
+        // --- Admin Panel Logic ---
+        const adminBtn = document.getElementById('adminBtn');
+        const adminModal = document.getElementById('adminModal');
+        const closeBtn = document.querySelector('.close-button');
+        const loginBtn = document.getElementById('loginBtn');
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
+        const passwordSection = document.getElementById('passwordSection');
+        const emailSection = document.getElementById('emailSection');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const recipientEmailInput = document.getElementById('recipientEmail');
+        const adminMessage = document.getElementById('adminMessage');
+
+        const ADMIN_PASSWORD = "admin_vision_2024"; // Puedes cambiar esta contraseña
+
+        adminBtn.onclick = () => {
+            adminModal.style.display = 'block';
+            adminPasswordInput.value = '';
+            recipientEmailInput.value = '';
+            adminMessage.textContent = '';
+            passwordSection.style.display = 'block';
+            emailSection.style.display = 'none';
+        };
+
+        closeBtn.onclick = () => {
+            adminModal.style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target == adminModal) {
+                adminModal.style.display = 'none';
+            }
+        };
+
+        loginBtn.onclick = () => {
+            if (adminPasswordInput.value === ADMIN_PASSWORD) {
+                passwordSection.style.display = 'none';
+                emailSection.style.display = 'block';
+            } else {
+                alert('Contraseña incorrecta.');
+            }
+        };
+
+        sendEmailBtn.onclick = async () => {
+            const email = recipientEmailInput.value;
+            if (!email) {
+                adminMessage.textContent = 'Por favor, ingresa una dirección de correo.';
+                adminMessage.style.color = 'red';
+                return;
+            }
+
+            sendEmailBtn.disabled = true;
+            adminMessage.textContent = 'Enviando...';
+            adminMessage.style.color = 'blue';
+
+            try {
+                const response = await fetch('/api/enviar-correo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    adminMessage.textContent = '¡Correo enviado exitosamente!';
+                    adminMessage.style.color = 'green';
+                    setTimeout(() => {
+                        adminModal.style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error(result.message || 'Ocurrió un error al enviar el correo.');
+                }
+            } catch (error) {
+                adminMessage.textContent = `Error: ${error.message}`;
+                adminMessage.style.color = 'red';
+            } finally {
+                sendEmailBtn.disabled = false;
+            }
+        };
     </script>
 </body>
 </html>
